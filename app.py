@@ -147,4 +147,3 @@ for symbol in stock_symbols:
 st.sidebar.subheader('About')
 st.sidebar.info('This dashboard provides stock data and technical indicators for various time periods. Use the sidebar to customize your view.')
 
-I want to use this as base but could you tweak it a bit  so it wouldnt count as plagiarizing also could you make it Indonesian
