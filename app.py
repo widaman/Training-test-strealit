@@ -38,6 +38,13 @@ def olah_data(df):
     """
     Mengkonversi data ke timezone yang sesuai dan format yang benar
     """
+    # Flatten multi-level columns if they exist
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.get_level_values(0)
+    
+    # Ensure we have the right columns
+    df = df[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
+    
     if df.index.tzinfo is None:
         df.index = df.index.tz_localize('UTC')
     
@@ -47,6 +54,7 @@ def olah_data(df):
     # Rename kolom ke Bahasa Indonesia
     df.rename(columns={
         'Date': 'Tanggal',
+        'Datetime': 'Tanggal',
         'Open': 'Pembukaan',
         'High': 'Tertinggi',
         'Low': 'Terendah',
@@ -76,16 +84,22 @@ def tambah_indikator(df):
     """
     Menambahkan indikator teknikal seperti SMA dan EMA
     """
+    # Make sure we're working with a clean copy
+    df = df.copy()
+    
+    # Ensure Penutupan column is a Series, not DataFrame
+    harga_penutupan = df['Penutupan'].squeeze()
+    
     # Simple Moving Average
-    df['SMA_20'] = ta.trend.sma_indicator(df['Penutupan'], window=20)
-    df['SMA_50'] = ta.trend.sma_indicator(df['Penutupan'], window=50)
+    df['SMA_20'] = ta.trend.sma_indicator(harga_penutupan, window=20)
+    df['SMA_50'] = ta.trend.sma_indicator(harga_penutupan, window=50)
     
     # Exponential Moving Average
-    df['EMA_20'] = ta.trend.ema_indicator(df['Penutupan'], window=20)
-    df['EMA_50'] = ta.trend.ema_indicator(df['Penutupan'], window=50)
+    df['EMA_20'] = ta.trend.ema_indicator(harga_penutupan, window=20)
+    df['EMA_50'] = ta.trend.ema_indicator(harga_penutupan, window=50)
     
     # RSI
-    df['RSI'] = ta.momentum.rsi(df['Penutupan'], window=14)
+    df['RSI'] = ta.momentum.rsi(harga_penutupan, window=14)
     
     return df
 
